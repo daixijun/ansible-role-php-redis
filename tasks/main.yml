@@ -1,0 +1,36 @@
+---
+# tasks file for daixijun.php-redis
+- name: Verify redis extension is installed
+  stat:
+    path: "{{ php_extension_dir }}/redis.so"
+  register: php_redis_installed_stat
+
+- name: Unarchive php-redis {{ php_redis_version }} from url
+  unarchive:
+    src: "{{ php_redis_download_url }}"
+    dest: /usr/local/src/
+    remote_src: true
+    creates: /usr/local/src/redis-{{ php_redis_version }}
+  when:
+    - not php_redis_installed_stat.stat.exists
+
+- name: Install
+  command: "{{ item }}"
+  args:
+    chdir: "/usr/local/src/redis-{{ php_redis_version }}"
+  loop:
+    - /usr/local/php/bin/phpize
+    - ./configure --with-php-config=/usr/local/php/bin/php-config
+    - make
+    - make install
+  when:
+    - not php_redis_installed_stat.stat.exists
+  tags:
+    - skip_ansible_lint
+
+- name: Generate configuration file
+  copy:
+    content: "extension=redis.so"
+    dest: /usr/local/php/etc/php.d/redis.ini
+  notify:
+    - restart php-fpm
