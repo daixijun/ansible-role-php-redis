@@ -9,7 +9,7 @@
   unarchive:
     src: "{{ php_redis_download_url }}"
     dest: /usr/local/src/
-    remote_src: true
+    remote_src: "{{ php_redis_remote_src }}"
     creates: /usr/local/src/redis-{{ php_redis_version }}
   when:
     - not php_redis_installed_stat.stat.exists
