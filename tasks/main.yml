@@ -32,5 +32,6 @@
   copy:
     content: "extension=redis.so"
     dest: /usr/local/php/etc/php.d/redis.ini
+    mode: '644'
   notify:
     - restart php-fpm
