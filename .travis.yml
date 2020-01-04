@@ -7,7 +7,6 @@ services:
 matrix:
   fast_finish: true
 python:
-  - "2.7"
   - "3.7"
 
 cache: pip

@@ -5,14 +5,34 @@
     path: "{{ php_extension_dir }}/redis.so"
   register: php_redis_installed_stat
 
-- name: Unarchive php-redis {{ php_redis_version }} from url
+- name: Check php redis package is already exists
+  stat:
+    path: "{{ role_path }}/files/{{ php_redis_download_url | basename }}"
+  become: false
+  run_once: true
+  delegate_to: localhost
+  register: _php_redis_package_stat
+
+- name: Download php redis package
+  get_url:
+    url: "{{ php_redis_download_url }}"
+    dest: "{{ role_path }}/files/"
+  become: false
+  run_once: true
+  delegate_to: localhost
+  register: _php_redis_package
+  when:
+    - not _php_redis_package_stat.stat.exists
+    - not php_redis_installed_stat.stat.exists
+
+- name: Unarchive php-redis {{ php_redis_version }}
   unarchive:
-    src: "{{ php_redis_download_url }}"
+    src: "files/{{ php_redis_download_url | basename }}"
     dest: /usr/local/src/
-    remote_src: "{{ php_redis_remote_src }}"
+    remote_src: false
     creates: /usr/local/src/redis-{{ php_redis_version }}
   when:
-    - not php_redis_installed_stat.stat.exists
+    - not php_redis_installed_stat.stat.exists and (_php_redis_package is not skipped or _php_redis_package_stat.stat.exists)
 
 - name: Install
   command: "{{ item }}"
@@ -23,6 +43,7 @@
     - ./configure --with-php-config=/usr/local/php/bin/php-config
     - make
     - make install
+    - chown {{ php_web_user }}:{{ php_web_user }} {{ php_extension_dir }}/redis.so
   when:
     - not php_redis_installed_stat.stat.exists
   tags:
@@ -32,6 +53,13 @@
   copy:
     content: "extension=redis.so"
     dest: /usr/local/php/etc/php.d/redis.ini
-    mode: '644'
+    mode: "644"
+    owner: "{{ php_web_user }}"
+    group: "{{ php_web_user }}"
   notify:
     - restart php-fpm
+
+- name: Clean package
+  file:
+    path: "/usr/local/src/redis-{{ php_redis_version }}"
+    state: absent
