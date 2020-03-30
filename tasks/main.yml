@@ -2,7 +2,7 @@
 # tasks file for daixijun.php-redis
 - name: Verify redis extension is installed
   stat:
-    path: "{{ php_extension_dir }}/redis.so"
+    path: "{{ ansible_local.php.extension_dir }}/redis.so"
   register: php_redis_installed_stat
 
 - name: Check php redis package is already exists
@@ -38,12 +38,13 @@
   command: "{{ item }}"
   args:
     chdir: "/usr/local/src/redis-{{ php_redis_version }}"
+    warn: false
   loop:
     - /usr/local/php/bin/phpize
     - ./configure --with-php-config=/usr/local/php/bin/php-config
     - make
     - make install
-    - chown {{ php_web_user }}:{{ php_web_user }} {{ php_extension_dir }}/redis.so
+    - chown {{ ansible_local.php.web_user }}:{{ ansible_local.php.web_user }} {{ ansible_local.php.extension_dir }}/redis.so
   when:
     - not php_redis_installed_stat.stat.exists
   tags:
@@ -54,8 +55,8 @@
     content: "extension=redis.so"
     dest: /usr/local/php/etc/php.d/redis.ini
     mode: "644"
-    owner: "{{ php_web_user }}"
-    group: "{{ php_web_user }}"
+    owner: "{{ ansible_local.php.web_user }}"
+    group: "{{ ansible_local.php.web_user }}"
   notify:
     - restart php-fpm
 
