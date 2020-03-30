@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.3](https://github.com/daixijun/ansible-role-php-redis/compare/v0.1.2...v0.1.3) (2020-03-30)
+
+
+### Features
+
+* update version to 5.2.1 ([4a63e25](https://github.com/daixijun/ansible-role-php-redis/commit/4a63e253b66f477cd3249f102bb1cc390dba51db))
+
+
+### Bug Fixes
+
+* extension_dir与web_user变量使用自定义local facts ([719e98f](https://github.com/daixijun/ansible-role-php-redis/commit/719e98fcd6da97c00798e92afe71149f375da6da))
+
 ### [0.1.2](https://github.com/daixijun/ansible-role-php-redis/compare/v0.1.1...v0.1.2) (2020-01-04)
 
 
