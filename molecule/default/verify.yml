@@ -1,0 +1,40 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Gather services
+      service_facts:
+
+    - name: Assert php-fpm service state
+      assert:
+        that:
+          - "'php-fpm.service' in ansible_facts.services"
+          - ansible_facts.services['php-fpm.service'].state == 'running'
+          - ansible_facts.services['php-fpm.service'].status == 'enabled'
+
+    - name: Stat redis.so
+      stat:
+        path: "{{ ansible_local.php.extension_dir }}/redis.so"
+      register: _redis_so
+
+    - name: Assert redis so
+      assert:
+        that:
+          - _redis_so.stat.exists is defined and _redis_so.stat.exists | bool
+          - _redis_so.stat.pw_name == ansible_local.php.web_user
+          - _redis_so.stat.gr_name == ansible_local.php.web_user
+
+    - name: Check redis extension is loaded
+      command: /usr/local/php/bin/php -m | grep redis
+      become: true
+      changed_when: false
+      become_user: "{{ ansible_local.php.web_user }}"
+      register: _redis_load
+
+    - name: Assert redis extension is loaded
+      assert:
+        that:
+          - _redis_load.rc == 0
+          - "'redis' in _redis_load.stdout"
