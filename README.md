@@ -1,7 +1,7 @@
-Role Name
+Role Name: daixijun.php-redis
 =========
 
-[![Build Status](https://travis-ci.org/daixijun/ansible-role-php-redis.svg?branch=master)](https://travis-ci.org/daixijun/ansible-role-php-redis)
+[![Build Status](https://github.com/daixijun/ansible-role-php-redis/workflows/ci/badge.svg)](https://github.com/daixijun/ansible-role-php-redis/actions)
 
 Ansible 安装php redis扩展
 
